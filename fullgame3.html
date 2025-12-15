@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loving You From a Distance</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+
+<style>
+/* GENERAL */
+body, html {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    font-family: 'Great Vibes', cursive;
+    overflow: hidden;
+    color: white;
+}
+
+/* BACKGROUND VIDEO */
+#bgVideo {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: -2;
+}
+
+/* DARK OVERLAY FOR READABILITY */
+#overlay {
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: rgba(0,0,0,0.3);
+    z-index: -1;
+}
+
+/* GAME CONTAINER */
+#game-container {
+    position: relative;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    z-index: 1;
+}
+
+/* TEXT BOX */
+.text-box {
+    background: rgba(0,0,0,0.6);
+    padding: 20px;
+    border-radius: 15px;
+    margin: 10px 0;
+    max-width: 80%;
+    font-size: 22px;
+    line-height: 1.6;
+    opacity: 1;
+    transition: opacity 1s;
+}
+
+/* BUTTON */
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background: #ff4081;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    margin-top: 20px;
+    opacity: 0;
+    transition: opacity 1s;
+}
+button:hover { background:white; color:black; }
+
+/* SPARKLES AND HEART */
+.interactive {
+    cursor: pointer;
+    display:inline-block;
+    margin:5px;
+    padding:10px;
+    border-radius:50%;
+    font-weight:bold;
+    font-size:24px;
+    opacity:0;
+    position:absolute;
+}
+#heart { position:absolute; top:20px; right:20px; font-size:30px; color:red; opacity:0; transition: opacity 1s; }
+.sparkle { position:absolute; width:10px; height:10px; background:yellow; border-radius:50%; animation:sparkleAnim 1s linear forwards; }
+
+/* GLOWING TEXT */
+.glow-pink { color:#ff69b4; text-shadow:0 0 10px #ff69b4,0 0 20px #ff69b4,0 0 30px #ff69b4; }
+.glow-yellow { color:#ffff00; text-shadow:0 0 10px #ffff00,0 0 20px #ffff00,0 0 30px #ffff00; }
+.glow-white { color:#ffffff; text-shadow:0 0 10px #fff,0 0 20px #fff; }
+
+/* ANIMATIONS */
+.shake { animation: shakeText 0.5s ease; }
+@keyframes sparkleAnim { from {opacity:1; transform: translateY(0);} to {opacity:0; transform: translateY(-50px) scale(1.5);} }
+@keyframes shakeText { 0%{transform:translateX(0);} 25%{transform:translateX(-2px);} 50%{transform:translateX(2px);} 75%{transform:translateX(-2px);} 100%{transform:translateX(0);} }
+</style>
+</head>
+
+<body>
+
+<!-- BACKGROUND VIDEO -->
+<video id="bgVideo" autoplay loop muted playsinline>
+    <source src="4K Beautiful Anime Scenery 2160p60.webm" type="video/webm">
+</video>
+
+<div id="overlay"></div>
+
+<!-- AUDIO -->
+<audio id="music-rain" loop>
+  <source src="1 Minute Relaxing Music - Peaceful Ambient - Stress Relief - Nature Background - Meditation 256kbps.webm" type="audio/webm">
+</audio>
+<audio id="music-calm" loop>
+  <source src="calm.mp3" type="audio/mpeg">
+</audio>
+
+<!-- GAME -->
+<div id="game-container">
+  <div class="text-box" id="scene-text"></div>
+  <button id="scene-next">Next</button>
+  <div id="heart">❤️</div>
+</div>
+
+<script>
+// MUSIC START
+const musicRain = document.getElementById('music-rain');
+const musicCalm = document.getElementById('music-calm');
+musicRain.volume=0.2; musicCalm.volume=0.3;
+let musicStarted=false;
+document.body.addEventListener('click', function startMusicOnce(){
+  if(!musicStarted){
+    musicRain.play().catch(()=>{});
+    musicCalm.play().catch(()=>{});
+    musicStarted=true;
+  }
+});
+
+// SPARKLE & HEART FUNCTIONS
+function sparkle(x,y){
+  const s=document.createElement('div');
+  s.classList.add('sparkle');
+  s.style.left=x+'px'; s.style.top=y+'px';
+  document.getElementById('game-container').appendChild(s);
+  setTimeout(()=>s.remove(),1000);
+}
+function showHeart(){
+  const h=document.getElementById('heart');
+  h.style.opacity='1';
+  setTimeout(()=>h.style.opacity='0',1500);
+}
+
+// FADE IN FUNCTION
+function fadeIn(el,delay=0){ setTimeout(()=>{ el.style.opacity='1'; },delay); }
+
+// TYPEWRITER WITH GLOW SUPPORT
+function typeWriter(el, text, speed=50, callback=null){
+  let lineDiv=document.createElement('div'); lineDiv.classList.add('shake'); el.appendChild(lineDiv);
+
+  const temp = document.createElement('div'); 
+  temp.innerHTML = text; 
+  const nodes = [...temp.childNodes];
+  let nodeIndex = 0;
+
+  function typeNode(){
+    if(nodeIndex < nodes.length){
+      const node = nodes[nodeIndex];
+
+      if(node.nodeType === 3){ // normal text
+        let charIndex = 0;
+        const txt = node.textContent;
+        const span = document.createElement('span'); lineDiv.appendChild(span);
+        const interval = setInterval(()=>{
+          span.textContent += txt[charIndex];
+          charIndex++;
+          if(charIndex >= txt.length) clearInterval(interval);
+        }, speed);
+      } else if(node.nodeType === 1){ // span (glow)
+        const span = document.createElement('span'); 
+        span.className = node.className; 
+        lineDiv.appendChild(span);
+        let charIndex = 0; 
+        const txt = node.textContent;
+        const interval = setInterval(()=>{
+          span.textContent += txt[charIndex];
+          charIndex++;
+          if(charIndex >= txt.length) clearInterval(interval);
+        }, speed);
+      }
+
+      nodeIndex++; 
+      setTimeout(typeNode, speed*2);
+    } else if(callback) callback();
+  }
+
+  typeNode();
+}
+
+// SCENES
+const scenes=[
+{ type:"intro", lines:["30 Ottobre 2024","Amando Te Da Distanza"] },
+{ type:"floatingTexts", lines:[
+  "Quella notte mi chiamò <span class='glow-yellow'>Abdul</span> e rise senza sosta.",
+  "Anche io ridevo, sentendo gioia e sollievo.",
+  "Quella notte mi fece innamorare ancora di più."
+], floatingTexts:["<span class='glow-yellow'>Abdul</span>","<span class='glow-yellow'>Abdul</span>","<span class='glow-yellow'>Abdul</span>"] },
+{ type:"stars", lines:[
+  "Quella notte mi hai confortato quando ero insicuro...",
+  "Le tue parole hanno calmato le mie paure.",
+  "Non riuscivo a smettere di pensare a quanto significassi per me quella notte.",
+  "Ho sentito sollievo e calore nel mio cuore grazie a te.",
+  "Ho realizzato quanto sono fortunato ad averti nella mia vita."
+], starsCount:5 },
+{ type:"letters", lines:[
+  "Mi sei mancata sempre perché sei occupata e rispondi dopo giorni...",
+  "I tuoi messaggi sono brevi, ma li apprezzo comunque.",
+  "Mi ha fatto male quando non c'eri per il nostro anniversario o il mio compleanno.",
+  "Anche quando mi hai ghostato per un mese, ti ho ancora amata.",
+  "Ho capito che anche a distanza, il mio amore per te non svanisce mai."
+], lettersCount:5 },
+{ type:"final", lines:[
+  "Sei sempre stata importante per me più di quanto le parole possano dire.",
+  "Attraverso ogni distanza, messaggio breve e giorno mancato, il mio amore non è mai svanito.",
+  "Ogni ricordo, ogni momento con te, è inciso nel mio cuore.",
+  "Anche quando siamo lontani, sei il primo pensiero nella mia mente ogni giorno.",
+  "<span class='glow-pink'>Elisa</span>, ti amo più di ogni cosa. Grazie per essere il mio tutto. Ti adoro, mia cara ❤️"
+], finalGlowName:"Elisa", christmasLines:[
+  "Buon Natale, mia cara! Spero che questo Natale sia pieno di gioia e felicità per te.",
+  "Che tutti i tuoi desideri si avverino e che il nuovo anno ci porti ancora più bei momenti insieme.",
+  "-ur fav <span class='glow-yellow'>Abdul</span>"
+]}
+];
+
+let currentScene=0;
+const nextBtn = document.getElementById('scene-next');
+const sceneText = document.getElementById('scene-text');
+
+function clearScene(){
+  sceneText.innerHTML='';
+  nextBtn.style.opacity=0; nextBtn.style.display='none';
+  [...document.querySelectorAll('.interactive')].forEach(el=>el.remove());
+}
+
+function startScene(scene){
+  clearScene();
+  if(scene.type==="intro"){
+    let i=0;
+    function showLine(){
+      if(i<scene.lines.length){
+        typeWriter(sceneText,scene.lines[i],50,()=>{i++; setTimeout(showLine,500);});
+      } else { fadeIn(nextBtn,500); nextBtn.style.display='block'; }
+    }
+    showLine();
+  } else if(scene.type==="floatingTexts"){
+    let lineIndex=0;
+    function showLine(){
+      if(lineIndex<scene.lines.length){
+        typeWriter(sceneText,scene.lines[lineIndex],50,()=>{
+          showHeart();
+          lineIndex++;
+          setTimeout(showLine,500);
+        });
+      } else { showFloating(); }
+    }
+    function showFloating(){
+      let index=0;
+      function nextFloating(){
+        if(index>=scene.floatingTexts.length){
+          fadeIn(nextBtn,500); nextBtn.style.display='block';
+          return;
+        }
+        let ft=document.createElement('div');
+        ft.classList.add('interactive');
+        ft.innerHTML=scene.floatingTexts[index];
+        ft.style.top=(100+Math.random()*400)+"px";
+        ft.style.left=(50+Math.random()*600)+"px";
+        document.getElementById('game-container').appendChild(ft);
+        fadeIn(ft,0);
+        ft.addEventListener('click', ()=>{
+          sparkle(ft.offsetLeft+10, ft.offsetTop+10); showHeart(); ft.style.opacity='0.2';
+        });
+        index++; setTimeout(nextFloating,600);
+      }
+      nextFloating();
+    }
+    showLine();
+  } else if(scene.type==="stars" || scene.type==="letters"){
+    const count = scene.starsCount || scene.lettersCount;
+    for(let j=0;j<count;j++){
+      let el=document.createElement('div'); el.classList.add('interactive');
+      el.textContent=scene.type==="stars"?"⭐":"✉️";
+      el.style.top=(100+Math.random()*400)+"px"; el.style.left=(50+Math.random()*600)+"px";
+      document.getElementById('game-container').appendChild(el);
+      fadeIn(el,200);
+      el.addEventListener('click', ()=>{
+        if(!el.clicked){
+          el.clicked=true;
+          typeWriter(sceneText, scene.lines[j],50,()=>{
+            sparkle(el.offsetLeft+10, el.offsetTop+10); showHeart();
+          });
+          el.style.opacity='0.2';
+          if([...document.querySelectorAll('.interactive')].filter(x=>!x.clicked).length===0){
+            fadeIn(nextBtn,500); nextBtn.style.display='block';
+          }
+        }
+      });
+    }
+    sceneText.innerHTML="Clicca i "+(scene.type==="stars"?"stelle":"messaggi")+" per rivivere i ricordi...";
+  } else if(scene.type==="final"){
+    let i=0; const finalLines=[...scene.lines,...scene.christmasLines];
+    function showNextLine(){
+      if(i<finalLines.length){
+        let text=finalLines[i];
+        typeWriter(sceneText,text,50,()=>{ sparkle(200+Math.random()*400,100+Math.random()*300); showHeart(); i++; setTimeout(showNextLine,800); });
+      } else { fadeIn(nextBtn,500); nextBtn.style.display='block'; nextBtn.textContent="Fine ❤️"; }
+    }
+    showNextLine();
+  }
+}
+
+nextBtn.addEventListener('click', ()=>{
+  currentScene++;
+  if(currentScene<scenes.length) startScene(scenes[currentScene]);
+  else alert("Grazie per aver giocato 💖");
+});
+
+startScene(scenes[0]);
+</script>
+
+</body>
+</html>
